@@ -1,3 +1,11 @@
 module.exports = {
-	deferred : {}
+	deferred : function() {
+		return {
+			promise : {
+				then : function() {
+					
+				}
+			}
+		}
+	}
 }
