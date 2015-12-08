@@ -1,0 +1,28 @@
+{
+  "name": "tiny-deferred",
+  "version": "0.0.1",
+  "description": "Tiny Promises implementation",
+  "author": "Wojciech Dłubacz <wojciech@dlubacz.pl> (http://sahadar.github.io)",
+  "keywords": [
+    "async",
+    "asynchronous",
+    "deferred",
+    "flow",
+    "future",
+    "futures",
+    "promise",
+    "promises",
+    "continuations"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/medikoo/deferred.git"
+  },
+  "devDependencies": {
+    "qunit": "~0.7.7"
+  },
+  "scripts": {
+    "test": "node ./test/testrunner.js"
+  },
+  "license": "MIT"
+}
