@@ -2,6 +2,9 @@
 
 QUnit.module('tiny-deferred', {
 	setup : function() {
+		return {
+			x : {}
+		}
 	}
 })
 
@@ -26,4 +29,11 @@ asyncTest("No arguments", function () {
 		start();
 		ok(res === value, "Resolve");
 	});
+});
+
+asyncTest("One argument", function () {
+	var x = this.x;
+    var defer = deferred(x);
+
+	ok(isPromise(defer), "Got promise");
 });
