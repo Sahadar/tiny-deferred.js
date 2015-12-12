@@ -6,7 +6,7 @@ QUnit.module('tiny-deferred', {
 			x : {}
 		}
 	}
-})
+});
 
 test("Is Promise test", function () {
     var defer = deferred();
@@ -33,7 +33,7 @@ test("Only first resolve is taken", function () {
 	ok(defer.promise.valueOf() === 1);
 });
 
-test("Only first resolve is taken", function (assert) {
+test("Nesting", function (assert) {
 	var defer1 = deferred(),
 		defer2 = deferred(),
 		x = {},
@@ -103,20 +103,20 @@ test("Resolve promise with other promise", function (assert) {
 	defer2.resolve(x);
 });
 
-test("Reject", function (assert) {
-	var e = new Error("Error!");
+// test("Reject", function (assert) {
+// 	var e = new Error("Error!");
 
-	deferred().reject(e).done(function() {
-		equal(false, true, "This callback should never execute");
-	}, function (result) {
-		equal(result, e);
-	});
-});
+// 	deferred().reject(e).done(function() {
+// 		equal(false, true, "This callback should never execute");
+// 	}, function (result) {
+// 		equal(result, e);
+// 	});
+// });
 
-test("Reject function", function (assert) {
-	var rejected = deferred.reject('hello');
+// test("Reject function", function (assert) {
+// 	var rejected = deferred.reject('hello');
 
-	equal(isPromise(rejected), true, "Promise");
-	equal(rejected.failed, true, "Rejected");
-	equal(rejected.value, 'hello', "value");
-});
+// 	equal(isPromise(rejected), true, "Promise");
+// 	equal(rejected.failed, true, "Rejected");
+// 	equal(rejected.value, 'hello', "value");
+// });
