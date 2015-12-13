@@ -15,7 +15,13 @@
 		promise.then = function(win, fail) {
 			if(promise.resolved) {
 				if(typeof win === 'function') {
-					promise.value = win(promise.value);
+					(function() {
+						var result = win(promise.value);
+
+						if(typeof result !== 'undefined') {
+							promise.value = result;
+						}
+					})();
 				}
 			} else {
 				thenArgs.push(arguments);
