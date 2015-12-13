@@ -33,7 +33,7 @@ test("Only first resolve is taken", function () {
 	ok(defer.promise.valueOf() === 1);
 });
 
-test("Nesting", function (assert) {
+test("Nesting", function () {
 	var defer1 = deferred(),
 		defer2 = deferred(),
 		x = {},
@@ -49,7 +49,7 @@ test("Nesting", function (assert) {
 	deepEqual(promise.value, [x, 'foo'], "Transfered value");
 });
 
-test("Resolve corner case", function (assert) {
+test("Resolve corner case", function () {
 	var defer1 = deferred(),
 		defer2 = deferred(),
 		defer3 = deferred(),
@@ -71,7 +71,29 @@ test("Resolve corner case", function (assert) {
 	equal(count, 6);
 });
 
-test("Call all then callbacks in order", function (assert) {
+test("Chaining", function() {
+	var defer = deferred(),
+		promise = defer.promise,
+		arg1 = 'arg1',
+		arg2 = 'arg2';
+
+	promise.then(function(value) {
+		var def = deferred();
+		ok(value, arg1, "Arg1 passed");
+
+		def.resolve(arg2);
+		return def.promise;
+	}).then(function(value) {
+		ok(value, arg2, "Arg2 passed");
+		return value;
+	}).then(function() {
+		ok(promise.value, arg2, "Arg2 saved");
+	});
+
+	defer.resolve(arg1);
+});
+
+test("Call all then callbacks in order", function () {
 	var defer = deferred(),
 		promise = defer.promise,
 		x = {},
@@ -88,7 +110,7 @@ test("Call all then callbacks in order", function (assert) {
 	defer.resolve(x);
 });
 
-test("Resolve promise with other promise", function (assert) {
+test("Resolve promise with other promise", function () {
 	var defer1 = deferred(),
 		promise1 = defer1.promise,
 		x = {},
@@ -103,7 +125,7 @@ test("Resolve promise with other promise", function (assert) {
 	defer2.resolve(x);
 });
 
-// test("Reject", function (assert) {
+// test("Reject", function () {
 // 	var e = new Error("Error!");
 
 // 	deferred().reject(e).done(function() {
@@ -113,7 +135,7 @@ test("Resolve promise with other promise", function (assert) {
 // 	});
 // });
 
-// test("Reject function", function (assert) {
+// test("Reject function", function () {
 // 	var rejected = deferred.reject('hello');
 
 // 	equal(isPromise(rejected), true, "Promise");
