@@ -93,6 +93,34 @@ test("Chaining", function() {
 	defer.resolve(arg1);
 });
 
+asyncTest("Async chaining", function() {
+	expect(3);
+
+	var defer = deferred(),
+		promise = defer.promise,
+		arg1 = 'arg1',
+		arg2 = 'arg2';
+
+	promise.then(function(value) {
+		var def = deferred();
+		ok(value, arg1, "Arg1 passed");
+
+		setTimeout(function() {
+			start();
+			def.resolve(arg2);
+		}, 200);
+
+		return def.promise;
+	}).then(function(value) {
+		ok(value, arg2, "Arg2 passed");
+		return value;
+	}).then(function() {
+		ok(promise.value, arg2, "Arg2 saved");
+	});
+
+	defer.resolve(arg1);
+});
+
 test("Call all then callbacks in order", function () {
 	var defer = deferred(),
 		promise = defer.promise,
@@ -123,6 +151,24 @@ test("Resolve promise with other promise", function () {
 
 	defer1.resolve(promise2);
 	defer2.resolve(x);
+});
+
+asyncTest("Async resolve promise with other promise", function () {
+	var defer1 = deferred(),
+		promise1 = defer1.promise,
+		x = {},
+	  	defer2 = deferred(),
+	  	promise2 = defer2.promise;
+
+	promise1(function (result) {
+		equal(result, x);
+	}).done();
+
+	defer1.resolve(promise2);
+	setTimeout(function() {
+		start();
+		defer2.resolve(x);
+	}, 500);
 });
 
 // test("Reject", function () {
