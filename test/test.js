@@ -90,6 +90,8 @@ test("Chaining", function() {
 		ok(promise.value, arg2, "Arg2 saved");
 	}).then(function() {
 		ok(promise.value, arg2, "Does not change promise value");
+	}).then(function(test) {
+		equal(test, arg2, "Does not change promise value");
 	});
 
 	defer.resolve(arg1);
