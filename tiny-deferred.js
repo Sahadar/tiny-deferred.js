@@ -23,6 +23,10 @@
 						}
 					})();
 				}
+			} else if(promise.failed) {
+				if(typeof fail === 'function') {
+					fail(promise.value);
+				}
 			} else {
 				thenArgs.push(arguments);
 			}
@@ -33,16 +37,19 @@
 		promise.valueOf = function() {return promise.value;};
 		promise.value = null;
 		promise.resolved = false;
+		promise.failed = false;
+		promise.settled = false;
 
 		this.promise = promise;
 		this.resolve = function(resolveValue) {
-			if(promise.resolved) {
+			if(promise.settled) {
 				return promise;
 			}
 
 			promise.value = resolveValue;
 			if(!isPromise(resolveValue)) {
 				promise.resolved = true;
+				promise.settled = true;
 
 				while(thenArgs.length) {
 					promise.then.apply(self, thenArgs.shift()); 
@@ -51,6 +58,22 @@
 				resolveValue.then(function(val) {
 					self.resolve(val);
 				});
+			}
+
+			return promise;
+		};
+		this.reject = function(rejectValue) {
+			// we cannot reject resolved promise
+			if(promise.settled) {
+				return promise;
+			}
+
+			promise.value = rejectValue;
+			promise.failed = true;
+			promise.settled = true;
+
+			while(thenArgs.length) {
+				promise.then.apply(self, thenArgs.shift()); 
 			}
 
 			return promise;
@@ -68,9 +91,7 @@
 
 	//node.js
 	if(typeof module === 'object' && module.exports) {
-		module.exports = {
-			deferred : createDeferred
-		};
+		module.exports = createDeferred;
 	}
 
 	if(typeof window === 'object') {

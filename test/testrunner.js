@@ -7,6 +7,9 @@ qunit.run({
 		path : "node_modules/is-promise/index.js",
 		namespace : 'isPromise'
 	}],
-    code: "tiny-deferred.js",
+    code: {
+    	path : "tiny-deferred.js",
+    	namespace : 'deferred'
+    },
     tests: "test/test.js"
 });

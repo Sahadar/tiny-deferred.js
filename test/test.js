@@ -2,9 +2,6 @@
 
 QUnit.module('tiny-deferred', {
 	setup : function() {
-		return {
-			x : {}
-		}
 	}
 });
 
@@ -26,7 +23,7 @@ test("No arguments", function () {
 test("Only first resolve is taken", function () {
 	var defer = deferred();
 
-	defer.promise.done();
+	defer.promise;
 	defer.resolve(1);
 	defer.resolve(2);
 
@@ -133,11 +130,11 @@ test("Call all then callbacks in order", function () {
 
 	promise(function () {
 		++count;
-	}).done();
+	});
 
 	promise(function () {
 		equal(count, 1);
-	}).done();
+	});
 
 	defer.resolve(x);
 });
@@ -151,7 +148,7 @@ test("Resolve promise with other promise", function () {
 
 	promise1(function (result) {
 		equal(result, x);
-	}).done();
+	});
 
 	defer1.resolve(promise2);
 	defer2.resolve(x);
@@ -166,7 +163,7 @@ asyncTest("Async resolve promise with other promise", function () {
 
 	promise1(function (result) {
 		equal(result, x);
-	}).done();
+	});
 
 	defer1.resolve(promise2);
 	setTimeout(function() {
@@ -175,20 +172,20 @@ asyncTest("Async resolve promise with other promise", function () {
 	}, 500);
 });
 
-// test("Reject", function () {
-// 	var e = new Error("Error!");
+test("Reject", function () {
+	var e = new Error("Error!");
 
-// 	deferred().reject(e).done(function() {
-// 		equal(false, true, "This callback should never execute");
-// 	}, function (result) {
-// 		equal(result, e);
-// 	});
-// });
+	deferred().reject(e).then(function() {
+		equal(false, true, "This callback should never execute");
+	}, function (result) {
+		equal(result, e);
+	});
+});
 
-// test("Reject function", function () {
-// 	var rejected = deferred.reject('hello');
+test("Reject function", function () {
+	var rejected = deferred().reject('hello');
 
-// 	equal(isPromise(rejected), true, "Promise");
-// 	equal(rejected.failed, true, "Rejected");
-// 	equal(rejected.value, 'hello', "value");
-// });
+	equal(isPromise(rejected), true, "Promise");
+	equal(rejected.failed, true, "Rejected");
+	equal(rejected.value, 'hello', "value");
+});
