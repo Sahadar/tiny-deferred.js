@@ -9,7 +9,7 @@
 		var self = this;
 		var thenArgs = [];
 
-		var promise = function(win, fail) {
+		function promise(win, fail) {
 			return promise.then(win, fail);
 		};
 		promise.then = function(win, fail) {
@@ -26,13 +26,21 @@
 			} else if(promise.failed) {
 				if(typeof fail === 'function') {
 					fail(promise.value);
+				} else if(window && console && typeof console.error === 'function') {
+					console.error(promise.value);
 				}
 			} else {
 				thenArgs.push(arguments);
 			}
 			return promise;
 		};
-		promise.done = function() {}
+		promise.done = function() {};
+		promise.map = function(callback) {
+			return promise.then(function(value) {
+				console.log('promise.value: ', promise.value);
+				return createDeferred.map(promise.value, callback);
+			});
+		};
 		promise.dependencies = [];
 		promise.valueOf = function() {return promise.value;};
 		promise.value = null;
@@ -82,6 +90,40 @@
 
 	function createDeferred(value) {
 		return new Deferred(value);
+	}
+
+	createDeferred.map = function(collection, callback) {
+		var mapDefer = createDeferred();
+		var collectionLength = collection.length;
+		var result = [];
+		var resolved = 0;
+
+		if(isPromise(collection)) {
+			collection.then(function(properCollection) {
+				mapDefer.resolve(createDeferred.map(properCollection, callback));
+			});
+			return mapDefer.promise;
+		}
+		if(!Array.isArray(collection)) {
+			mapDefer.reject(new Error("First map argument should be an array"));
+			return mapDefer.promise;
+		}
+		collection.forEach(function(collectionValue, index) {
+			var defer = createDeferred();
+
+			defer.promise.then(function(value) {
+				result[index] = value;
+				resolved++;
+
+				if(resolved === collectionLength) {
+					mapDefer.resolve(result);
+				}
+			});
+			result.push(defer.promise);
+			defer.resolve(callback(collectionValue));
+		});
+
+		return mapDefer.promise;
 	}
 
 	//if sbd's using requirejs library to load deferred.js

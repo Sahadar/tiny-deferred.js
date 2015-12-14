@@ -172,6 +172,86 @@ asyncTest("Async resolve promise with other promise", function () {
 	}, 500);
 });
 
+asyncTest("Processing collections - map", function () {
+	var text = 'Lorem Ipsum is simply dummy text of the printing';
+
+	deferred.map(text.split(' '), function(word) {
+		var defer = deferred();
+
+		setTimeout(function() {
+			defer.resolve(word.toLowerCase());
+		}, 10);
+
+		return defer.promise;
+	}).then(function(result) {
+		var textLowerCase = result.join(' ');
+
+		start();
+		ok(Array.isArray(result), true, "Result is an array");
+		equal(textLowerCase, text.toLowerCase(), 'Words in proper order, no one is missing');
+	});
+});
+
+asyncTest("Processing collections - using map with promise as value", function () {
+	var text = 'Lorem Ipsum is simply dummy text of the printing';
+	var defer = deferred();
+
+	setTimeout(function() {
+		defer.resolve(text.split(' '));
+	}, 100);
+
+	deferred.map(defer.promise, function(word) {
+		var defer = deferred();
+
+		setTimeout(function() {
+			defer.resolve(word.toLowerCase());
+		}, 10);
+
+		return defer.promise;
+	}).then(function(result) {
+		var textLowerCase = result.join(' ');
+
+		start();
+		ok(Array.isArray(result), true, "Result is an array");
+		equal(textLowerCase, text.toLowerCase(), 'Words in proper order, no one is missing');
+	}, function(error) {
+		equal(true, false, 'Map value is not handled properly');
+	});
+});
+
+asyncTest("Processing collections - using map on value of resolved promise", function () {
+	var text = 'Lorem Ipsum is simply dummy text of the printing';
+	var defer = deferred();
+
+	defer.promise.then(function(fullText) {
+		var innerDefer = deferred();
+
+		equal(fullText, text, 'Text properly passed');
+		setTimeout(function() {
+			innerDefer.resolve(fullText.split(' '));
+		}, 100);
+
+		return innerDefer.promise;
+	}).map(function(word) {
+		var defer = deferred();
+
+		console.log('word: ', word);
+		setTimeout(function() {
+			defer.resolve(word.toLowerCase());
+		}, 10);
+
+		return defer.promise;
+	}).then(function(result) {
+		var textLowerCase = result.join(' ');
+
+		start();
+		ok(Array.isArray(result), true, "Result is an array");
+		equal(textLowerCase, text.toLowerCase(), 'Words in proper order, no one is missing');
+	});
+
+	defer.resolve(text);
+});
+
 test("Reject", function () {
 	var e = new Error("Error!");
 
