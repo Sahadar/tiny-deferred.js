@@ -68,27 +68,37 @@ test("Resolve corner case", function () {
 	equal(count, 6);
 });
 
-test("Chaining", function() {
+asyncTest("Chaining", function() {
 	var defer = deferred(),
 		promise = defer.promise,
 		arg1 = 'arg1',
-		arg2 = 'arg2';
+		arg2 = 'arg2',
+		arg3 = 'arg3';
 
 	promise.then(function(value) {
 		var def = deferred();
-		ok(value, arg1, "Arg1 passed");
+		equal(value, arg1, "Arg1 passed");
 
-		def.resolve(arg2);
+		setTimeout(function() {
+			def.resolve(arg2);
+		}, 100);
+
 		return def.promise;
 	}).then(function(value) {
-		ok(value, arg2, "Arg2 passed");
-		return value;
+		var def = deferred();
+		equal(value, arg2, "Arg2 passed");
+
+		start();
+
+		def.resolve(arg3);
+		return def.promise;
+	}).then(function(value) {
+		equal(value, arg3, "Arg3 passed");
+		equal(promise.value, arg3, "Arg3 saved");
 	}).then(function() {
-		ok(promise.value, arg2, "Arg2 saved");
-	}).then(function() {
-		ok(promise.value, arg2, "Does not change promise value");
+		equal(promise.value, arg3, "Does not change promise value");
 	}).then(function(test) {
-		equal(test, arg2, "Does not change promise value");
+		equal(test, arg3, "Does not change promise value");
 	});
 
 	defer.resolve(arg1);
@@ -104,7 +114,7 @@ asyncTest("Async chaining", function() {
 
 	promise.then(function(value) {
 		var def = deferred();
-		ok(value, arg1, "Arg1 passed");
+		equal(value, arg1, "Arg1 passed");
 
 		setTimeout(function() {
 			start();
@@ -113,10 +123,10 @@ asyncTest("Async chaining", function() {
 
 		return def.promise;
 	}).then(function(value) {
-		ok(value, arg2, "Arg2 passed");
+		equal(value, arg2, "Arg2 passed");
 		return value;
 	}).then(function() {
-		ok(promise.value, arg2, "Arg2 saved");
+		equal(promise.value, arg2, "Arg2 saved");
 	});
 
 	defer.resolve(arg1);
@@ -187,7 +197,7 @@ asyncTest("Processing collections - map", function () {
 		var textLowerCase = result.join(' ');
 
 		start();
-		ok(Array.isArray(result), true, "Result is an array");
+		equal(Array.isArray(result), true, "Result is an array");
 		equal(textLowerCase, text.toLowerCase(), 'Words in proper order, no one is missing');
 	});
 });
@@ -212,7 +222,7 @@ asyncTest("Processing collections - using map with promise as value", function (
 		var textLowerCase = result.join(' ');
 
 		start();
-		ok(Array.isArray(result), true, "Result is an array");
+		equal(Array.isArray(result), true, "Result is an array");
 		equal(textLowerCase, text.toLowerCase(), 'Words in proper order, no one is missing');
 	}, function(error) {
 		equal(true, false, 'Map value is not handled properly');
@@ -245,7 +255,7 @@ asyncTest("Processing collections - using map on value of resolved promise", fun
 		var textLowerCase = result.join(' ');
 
 		start();
-		ok(Array.isArray(result), true, "Result is an array");
+		equal(Array.isArray(result), true, "Result is an array");
 		equal(textLowerCase, text.toLowerCase(), 'Words in proper order, no one is missing');
 	});
 
