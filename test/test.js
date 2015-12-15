@@ -38,7 +38,6 @@ test("Nesting", function () {
 
 	defer1.resolve(defer2.promise);
 	promise = defer1.promise.then(function(arg) {
-		console.log('arg: ', arg);
 		return [arg, 'foo'];
 	});
 	defer2.resolve(x);
