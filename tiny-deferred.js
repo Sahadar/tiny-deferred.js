@@ -31,18 +31,28 @@
 			} else {
 				awaiting.push({
 					defer : defer,
+					method : 'then',
 					args : arguments
 				});
 			}
 			return defer.promise;
 		};
 		promise.done = function() {};
-		// promise.map = function(callback) {
-		// 	return promise.then(function(value) {
-		// 		console.log('promise.value: ', promise.value);
-		// 		return createDeferred.map(promise.value, callback);
-		// 	});
-		// };
+		promise.map = function(callback) {
+			var defer = deferred();
+
+			if(promise.resolved) {
+				defer.resolve(createDeferred.map(promise.value, callback));
+			} else {
+				awaiting.push({
+					defer : defer,
+					method : 'map',
+					args : arguments
+				});
+			}
+
+			return defer.promise;
+		};
 		promise.dependencies = [];
 		promise.valueOf = function() {return promise.value;};
 		promise.value = null;
@@ -69,9 +79,14 @@
 					(function() {
 						var data = awaiting.shift();
 						var defer = data.defer;
+						var method = data.method;
 						var win = data.args[0];
 
-						defer.resolve(win(promise.value));
+						if(method === 'then') {
+							defer.resolve(win(promise.value));
+						} else if(method === 'map') {
+							defer.resolve(createDeferred.map(promise.value, win));
+						}
 					})();
 				}
 			}
