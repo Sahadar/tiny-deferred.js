@@ -7,21 +7,19 @@
 
 	function Deferred() {
 		var self = this;
-		var thenArgs = [];
+		var awaiting = [];
 
 		function promise(win, fail) {
 			return promise.then(win, fail);
 		};
 		promise.then = function(win, fail) {
+			var defer = deferred();
+
 			if(promise.resolved) {
 				if(typeof win === 'function') {
-					(function() {
-						var result = win(promise.value);
-
-						if(typeof result !== 'undefined') {
-							promise.value = result;
-						}
-					})();
+					defer.resolve(win(promise.value));
+				} else {
+					defer.resolve(promise.value);
 				}
 			} else if(promise.failed) {
 				if(typeof fail === 'function') {
@@ -29,18 +27,22 @@
 				} else if(window && console && typeof console.error === 'function') {
 					console.error(promise.value);
 				}
+				defer.reject(promise.value);
 			} else {
-				thenArgs.push(arguments);
+				awaiting.push({
+					defer : defer,
+					args : arguments
+				});
 			}
-			return promise;
+			return defer.promise;
 		};
 		promise.done = function() {};
-		promise.map = function(callback) {
-			return promise.then(function(value) {
-				console.log('promise.value: ', promise.value);
-				return createDeferred.map(promise.value, callback);
-			});
-		};
+		// promise.map = function(callback) {
+		// 	return promise.then(function(value) {
+		// 		console.log('promise.value: ', promise.value);
+		// 		return createDeferred.map(promise.value, callback);
+		// 	});
+		// };
 		promise.dependencies = [];
 		promise.valueOf = function() {return promise.value;};
 		promise.value = null;
@@ -54,18 +56,24 @@
 				return promise;
 			}
 
-			promise.value = resolveValue;
-			if(!isPromise(resolveValue)) {
-				promise.resolved = true;
-				promise.settled = true;
-
-				while(thenArgs.length) {
-					promise.then.apply(self, thenArgs.shift()); 
-				}
-			} else {
+			if(isPromise(resolveValue)) {
 				resolveValue.then(function(val) {
 					self.resolve(val);
 				});
+			} else {
+				promise.resolved = true;
+				promise.settled = true;
+				promise.value = resolveValue;
+
+				while(awaiting.length) {
+					(function() {
+						var data = awaiting.shift();
+						var defer = data.defer;
+						var win = data.args[0];
+
+						defer.resolve(win(promise.value));
+					})();
+				}
 			}
 
 			return promise;
@@ -80,8 +88,17 @@
 			promise.failed = true;
 			promise.settled = true;
 
-			while(thenArgs.length) {
-				promise.then.apply(self, thenArgs.shift()); 
+			while(awaiting.length) {
+				(function() {
+					var data = awaiting.shift();
+					var defer = data.defer;
+					var fail = data.args[1];
+
+					if(typeof fail === 'function') {
+						fail(promise.value);
+					}
+					defer.reject(promise.value);
+				})();
 			}
 
 			return promise;
