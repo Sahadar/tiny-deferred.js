@@ -29,6 +29,8 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 Documentation will be improved soon.
 
 ## Changelog
+* v0.2.1
+	* Fixed chaining + nesting + test upgrades
 * v0.2.0
 	* Promise reject - all tests passing
 * v0.1.1
