@@ -29,6 +29,8 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 Documentation will be improved soon.
 
 ## Changelog
+* v0.3.0
+	* Map method
 * v0.2.1
 	* Fixed chaining + nesting + test upgrades
 * v0.2.0
