@@ -30,6 +30,12 @@ test("Only first resolve is taken", function () {
 	ok(defer.promise.valueOf() === 1);
 });
 
+test("Promise called without arguments returns pointer to itself" , function () {
+	var defer = deferred();
+
+	equal(defer.promise, defer.promise(), 'Same promise');
+});
+
 test("Nesting", function () {
 	var defer1 = deferred(),
 		defer2 = deferred(),

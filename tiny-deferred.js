@@ -15,6 +15,9 @@
 		promise.then = function(win, fail) {
 			var defer = deferred();
 
+			if(typeof win !== 'function' && typeof fail !== 'function') {
+				return promise;
+			}
 			if(promise.resolved) {
 				if(typeof win === 'function') {
 					defer.resolve(win(promise.value));
