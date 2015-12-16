@@ -20,7 +20,6 @@ test("No arguments", function () {
 test("Only first resolve is taken", function () {
 	var defer = deferred();
 
-	defer.promise;
 	defer.resolve(1);
 	defer.resolve(2);
 
