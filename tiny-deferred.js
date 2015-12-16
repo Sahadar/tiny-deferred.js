@@ -13,7 +13,7 @@
 			return promise.then(win, fail);
 		};
 		promise.then = function(win, fail) {
-			var defer = deferred();
+			var defer = createDeferred();
 
 			if(typeof win !== 'function' && typeof fail !== 'function') {
 				return promise;
@@ -43,7 +43,7 @@
 		};
 		promise.done = function() {};
 		promise.map = function(callback) {
-			var defer = deferred();
+			var defer = createDeferred();
 
 			if(promise.resolved) {
 				defer.resolve(createDeferred.map(promise.value, callback));

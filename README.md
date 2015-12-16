@@ -16,7 +16,7 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 * Works on server and browser side smoothly
 * Works with require.js library
 * Written with TDD
-* Compiled + gzipped weight less than 1kB
+* Compiled + gzipped weighs less than 1kB
 
 ## Installation
 * download from Github
@@ -29,6 +29,8 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 Documentation will be improved soon.
 
 ## Changelog
+* v0.3.2
+	* Stylistic fixes
 * v0.3.1
 	* Promise called without arguments returns pointer to itself
 * v0.3.0
