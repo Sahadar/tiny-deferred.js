@@ -162,6 +162,55 @@
 		return mapDefer.promise;
 	}
 
+	createDeferred.reduce = function(collection, callback) {
+		var reduceDefer = createDeferred();
+		var collectionLength = collection.length;
+		var lastPromise;
+
+		// promise as first argument
+		if(isPromise(collection)) {
+			collection.then(function(properCollection) {
+				reduceDefer.resolve(createDeferred.reduce(properCollection, callback));
+			});
+			return reduceDefer.promise;
+		}
+		if(!Array.isArray(collection)) {
+			reduceDefer.reject(new Error("First map argument should be an array"));
+			return reduceDefer.promise;
+		}
+		collection.reduce(function(previous, current, index, collection) {
+			var defer = createDeferred();
+
+			// callback(previous, value, index, collection)
+			if(isPromise(current) && isPromise(previous)) {
+				previous.then(function(valuePrev) {
+					current.then(function(valueCurrent) {
+						defer.resolve(callback(valuePrev, valueCurrent, index, collection));
+					});
+				});
+			} else if(isPromise(current)) {
+				current.then(function(valueCurrent) {
+					defer.resolve(callback(previous, valueCurrent, index, collection));
+				});
+			} else if(isPromise(previous)) {
+				previous.then(function(valuePrev) {
+					defer.resolve(callback(valuePrev, current, index, collection));
+				});
+			} else {
+				defer.resolve(callback(previous, current, index, collection));
+			}
+			lastPromise = defer.promise;
+
+			return defer.promise;
+		});
+
+		lastPromise.then(function(result) {
+			reduceDefer.resolve(result);
+		});
+
+		return reduceDefer.promise;
+	}
+
 	//if sbd's using requirejs library to load deferred.js
 	if(typeof define === 'function') {
 		define(createDeferred);

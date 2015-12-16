@@ -29,6 +29,8 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 Documentation will be improved soon.
 
 ## Changelog
+* v0.4.0
+	* Reduce method + tests
 * v0.3.2
 	* Stylistic fixes
 * v0.3.1

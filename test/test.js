@@ -274,6 +274,89 @@ asyncTest("Processing collections - using map on value of resolved promise", fun
 	defer.resolve(text);
 });
 
+asyncTest("Processing collections - reduce", function () {
+	var defer1 = deferred();
+	var defer2 = deferred();
+	var defer3 = deferred();
+	var values = [2,3,8];
+
+	deferred.reduce([defer1.promise, defer2.promise, defer3.promise], function(previous, current, index, collection) {
+		var defer = deferred();
+
+		equal(current, values[index], "Proper value for index "+index);
+
+		setTimeout(function() {
+			defer.resolve(previous+current);
+		}, 10);
+
+		return defer.promise;
+	}).then(function(result) {
+		start();
+		equal(result, values[0]+values[1]+values[2], "Proper result");
+	});
+
+	defer1.resolve(values[0]);
+	defer2.resolve(values[1]);
+	defer3.resolve(values[2]);
+});
+
+asyncTest("Processing collections - reduce - not only promises", function () {
+	var defer1 = deferred();
+	var defer2 = deferred();
+	var defer3 = deferred();
+	var values = [2,3,8];
+	var current = [1,3,2,8];
+	var previous = [2,3,6,8];
+
+	deferred.reduce([defer1.promise, 1, defer2.promise, 2, defer3.promise], function(prev, curr, index, collection) {
+		var defer = deferred();
+
+		equal(curr, current[index-1], "Proper \"current\" value for index "+index);
+		equal(prev, previous[index-1], "Proper \"previous\" value for index "+index);
+
+		setTimeout(function() {
+			defer.resolve(prev+curr);
+		}, 10);
+
+		return defer.promise;
+	}).then(function(result) {
+		start();
+		equal(result, values[0]+values[1]+values[2]+1+2, "Proper result");
+	});
+
+	setTimeout(function() {
+		defer3.resolve(values[2]);
+		setTimeout(function() {
+			defer1.resolve(values[0]);
+			setTimeout(function() {
+				defer2.resolve(values[1]);
+			}, 50);
+		}, 50);
+	}, 50);
+});
+
+asyncTest("Processing collections - reduce - on normal values", function () {
+	var values = [2,3,8];
+	var current = [1,3,2,8];
+	var previous = [2,3,6,8];
+
+	deferred.reduce([values[0], 1, values[1], 2, values[2]], function(prev, curr, index, collection) {
+		var defer = deferred();
+		
+		equal(curr, current[index-1], "Proper \"current\" value for index "+index);
+		equal(prev, previous[index-1], "Proper \"previous\" value for index "+index);
+
+		setTimeout(function() {
+			defer.resolve(prev+curr);
+		}, 10);
+
+		return defer.promise;
+	}).then(function(result) {
+		start();
+		equal(result, values[0]+values[1]+values[2]+1+2, "Proper result");
+	});
+});
+
 test("Reject", function () {
 	var e = new Error("Error!");
 
