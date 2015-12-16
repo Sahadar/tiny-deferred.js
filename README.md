@@ -145,7 +145,7 @@ setTimeout(function() {
 }, 100);
 ```
 
-### Executing more callback on resolve
+### Executing more callbacks on resolve
 ```javascript
 var defer = deferred(),
 	promise = defer.promise,
@@ -164,6 +164,60 @@ promise(function () {
 });
 
 defer.resolve(x);
+```
+
+### Processing collections - map
+```javascript
+var text = 'Lorem Ipsum is simply dummy text of the printing';
+
+deferred.map(text.split(' '), function(word) {
+	var defer = deferred();
+
+	setTimeout(function() {
+		defer.resolve(word.toLowerCase());
+	}, 10);
+
+	return defer.promise;
+}).then(function(result) {
+	var textLowerCase = result.join(' ');
+
+	console.log(Array.isArray(result)); // true
+	// same order - no missing words
+	console.log(textLowerCase === text.toLowerCase()); // true
+});
+```
+
+### Processing collections - reduce
+```javascript
+var defer1 = deferred();
+var defer2 = deferred();
+var defer3 = deferred();
+var values = [2,3,8];
+
+deferred.reduce([defer1.promise, 1, defer2.promise, defer3.promise], function(previous, current, index) {
+	var defer = deferred();
+	
+	// index always starts from 1, not 0 - as in Array.prototype.reduce specification
+	if(index === 1) {
+		console.log(previous, current, index); // 2, 1, 1
+	} else if(index === 2) {
+		console.log(previous, current, index); // 3, 3, 2
+	} else if(index === 3) {
+		console.log(previous, current, index); // 6, 8, 3
+	}
+
+	setTimeout(function() {
+		defer.resolve(previous+current);
+	}, 10);
+
+	return defer.promise;
+}).then(function(result) {
+	console.log(result); // 14
+});
+
+defer1.resolve(values[0]);
+defer2.resolve(values[1]);
+defer3.resolve(values[2]);
 ```
 
 ### For more working examples:

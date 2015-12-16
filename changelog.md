@@ -1,4 +1,6 @@
 ## Changelog
+* v0.4.2
+	* Improved documentation
 * v0.4.1
 	* Reduce as a method of promise
 * v0.4.0
