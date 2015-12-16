@@ -60,6 +60,27 @@ console.log(promise.resolved); // true (promise is resolved)
 console.log(promise.value); // [{}, 'foo']
 ```
 
+### Nesting - another example
+```javascript
+var defer1 = deferred(),
+	promise1 = defer1.promise,
+	x = {},
+  	defer2 = deferred(),
+  	promise2 = defer2.promise;
+
+promise1(function (result) {
+	// "result" will be the same as a value of promise2
+	console.log(result); // {}
+});
+
+// promise1 will be waiting to execute awaiting callbacks until defer2 resolves
+defer1.resolve(promise2);
+// imagine ajax call
+setTimeout(function() {
+	defer2.resolve(x);
+}, 100);
+```
+
 ### Chaining
 ```javascript
 var defer = deferred(),
@@ -90,6 +111,7 @@ promise.then(function(value) {
 	// this log is important
 	// - promises chain execution each time creates new promise
 	// - will not change already resolved promise value
+	// - "promise" var points to initially created deferred's promise
 	console.log(promise.value); // 'arg1'
 
 	def.resolve(arg3);
@@ -121,6 +143,27 @@ setTimeout(function() {
 	// defer resolves - execute chain
 	defer.resolve(arg1);
 }, 100);
+```
+
+### Executing more callback on resolve
+```javascript
+var defer = deferred(),
+	promise = defer.promise,
+	count = 0;
+
+// we can bind to promise as many callbacks as we want
+// these callbacks will be executed 'fifo' order
+promise(function () {
+	// executes first
+	++count;
+});
+
+promise(function () {
+	// executes second
+	console.log(count); // 1
+});
+
+defer.resolve(x);
 ```
 
 ### For more working examples:
