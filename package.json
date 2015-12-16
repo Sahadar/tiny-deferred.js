@@ -1,6 +1,6 @@
 {
   "name": "tiny-deferred.js",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Tiny Promises implementation",
   "author": "Wojciech Dłubacz <wojciech@dlubacz.pl> (http://sahadar.github.io)",
   "keywords": [

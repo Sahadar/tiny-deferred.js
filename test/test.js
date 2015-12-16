@@ -1,9 +1,6 @@
 'use strict';
 
-QUnit.module('tiny-deferred', {
-	setup : function() {
-	}
-});
+QUnit.module('tiny-deferred');
 
 test("Is Promise test", function () {
     var defer = deferred();
@@ -195,6 +192,8 @@ asyncTest("Async resolve promise with other promise", function () {
 	}, 500);
 });
 
+QUnit.module('Map method');
+
 asyncTest("Processing collections - map", function () {
 	var text = 'Lorem Ipsum is simply dummy text of the printing';
 
@@ -274,6 +273,8 @@ asyncTest("Processing collections - using map on value of resolved promise", fun
 	defer.resolve(text);
 });
 
+QUnit.module('Reduce method');
+
 asyncTest("Processing collections - reduce", function () {
 	var defer1 = deferred();
 	var defer2 = deferred();
@@ -295,6 +296,34 @@ asyncTest("Processing collections - reduce", function () {
 		equal(result, values[0]+values[1]+values[2], "Proper result");
 	});
 
+	defer1.resolve(values[0]);
+	defer2.resolve(values[1]);
+	defer3.resolve(values[2]);
+});
+
+asyncTest("Processing collections - reduce as a method of promise", function () {
+	var mainDefer = deferred();
+	var defer1 = deferred();
+	var defer2 = deferred();
+	var defer3 = deferred();
+	var values = [2,3,8];
+
+	mainDefer.promise.reduce(function(previous, current, index, collection) {
+		var defer = deferred();
+
+		equal(current, values[index], "Proper value for index "+index);
+
+		setTimeout(function() {
+			defer.resolve(previous+current);
+		}, 10);
+
+		return defer.promise;
+	}).then(function(result) {
+		start();
+		equal(result, values[0]+values[1]+values[2], "Proper result");
+	});
+
+	mainDefer.resolve([defer1.promise, defer2.promise, defer3.promise]);
 	defer1.resolve(values[0]);
 	defer2.resolve(values[1]);
 	defer3.resolve(values[2]);
@@ -356,6 +385,8 @@ asyncTest("Processing collections - reduce - on normal values", function () {
 		equal(result, values[0]+values[1]+values[2]+1+2, "Proper result");
 	});
 });
+
+QUnit.module('Reject');
 
 test("Reject", function () {
 	var e = new Error("Error!");

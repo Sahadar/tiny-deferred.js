@@ -47,6 +47,8 @@
 
 			if(promise.resolved) {
 				defer.resolve(createDeferred.map(promise.value, callback));
+			} else if(promise.failed) {
+				defer.reject(promise.value);
 			} else {
 				awaiting.push({
 					defer : defer,
@@ -57,7 +59,23 @@
 
 			return defer.promise;
 		};
-		promise.dependencies = [];
+		promise.reduce = function(callback) {
+			var defer = createDeferred();
+
+			if(promise.resolved) {
+				defer.resolve(createDeferred.reduce(promise.value, callback));
+			} else if(promise.failed) {
+				defer.reject(promise.value);
+			} else {
+				awaiting.push({
+					defer : defer,
+					method : 'reduce',
+					args : arguments
+				});
+			}
+
+			return defer.promise;
+		};
 		promise.valueOf = function() {return promise.value;};
 		promise.value = null;
 		promise.resolved = false;
@@ -90,6 +108,8 @@
 							defer.resolve(win(promise.value));
 						} else if(method === 'map') {
 							defer.resolve(createDeferred.map(promise.value, win));
+						} else if(method === 'reduce') {
+							defer.resolve(createDeferred.reduce(promise.value, win));
 						}
 					})();
 				}
