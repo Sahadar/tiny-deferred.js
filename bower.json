@@ -18,6 +18,14 @@
     "promises",
     "continuations"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Sahadar/tiny-deferred.js"
+  },
+  "devDependencies": {
+    "is-promise": "2.1.0",
+    "qunit": "~0.7.7"
+  },
   "license": "MIT",
   "ignore": [
     "**/.*",
