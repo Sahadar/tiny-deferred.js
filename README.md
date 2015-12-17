@@ -21,6 +21,7 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 ## Installation
 * download from Github
 * npm: `npm install tiny-deferred.js`
+* bower: `bower install tiny-deferred`
 
 ## Examples
 
