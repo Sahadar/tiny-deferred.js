@@ -1,0 +1,29 @@
+{
+  "name": "tiny-deferred.js",
+  "main": "tiny-deferred.js",
+  "version": "0.4.2",
+  "homepage": "https://github.com/Sahadar/tiny-deferred.js",
+  "authors": [
+    "Wojciech Dłubacz <wdsahadar@gmail.com>"
+  ],
+  "description": "Tiny Promises implementation",
+  "keywords": [
+    "async",
+    "asynchronous",
+    "deferred",
+    "flow",
+    "future",
+    "futures",
+    "promise",
+    "promises",
+    "continuations"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
