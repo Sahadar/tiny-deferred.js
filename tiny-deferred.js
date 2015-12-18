@@ -11,7 +11,7 @@
 
 		function promise(win, fail) {
 			return promise.then(win, fail);
-		};
+		}
 		promise.then = function(win, fail) {
 			var defer = createDeferred();
 
@@ -142,7 +142,7 @@
 
 			return promise;
 		};
-	};
+	}
 
 	function createDeferred(value) {
 		return new Deferred(value);
@@ -180,7 +180,7 @@
 		});
 
 		return mapDefer.promise;
-	}
+	};
 
 	createDeferred.reduce = function(collection, callback) {
 		var reduceDefer = createDeferred();
@@ -229,7 +229,7 @@
 		});
 
 		return reduceDefer.promise;
-	}
+	};
 
 	//if sbd's using requirejs library to load deferred.js
 	if(typeof define === 'function') {

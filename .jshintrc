@@ -115,7 +115,8 @@
 		//qunit
 		"ok",
 		"test",
-		"asyncTest"
+		"asyncTest",
+		"define",
 		
 		//nodejs
 		"global",
