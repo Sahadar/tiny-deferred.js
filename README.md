@@ -4,6 +4,8 @@ tiny-deferred.js
 Implementation originally inspired by Mariusz Nowak's [deferred](https://github.com/medikoo/deferred)
 
 [![Build Status](https://travis-ci.org/Sahadar/tiny-deferred.js.svg?branch=master)](https://travis-ci.org/Sahadar/tiny-deferred.js)
+[![Dependency Status](https://david-dm.org/Sahadar/tiny-deferred.js.svg)](https://david-dm.org/Sahadar/tiny-deferred.js)
+[![License](https://img.shields.io/npm/l/tiny-deferred.js.svg)](http://opensource.org/licenses/MIT)
 
 [NPM tiny-deferred.js link](https://npmjs.org/package/tiny-deferred.js)
 
