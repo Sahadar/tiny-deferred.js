@@ -1,4 +1,6 @@
 ## Changelog
+* v0.4.3
+	* Documentation automatic icons improve
 * v0.4.2
 	* Improved documentation
 * v0.4.1
