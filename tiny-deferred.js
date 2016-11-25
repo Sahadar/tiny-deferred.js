@@ -16,17 +16,25 @@
 			var defer = createDeferred();
 
 			if(typeof win !== 'function' && typeof fail !== 'function') {
-				return promise;
+				return this;
 			}
 			if(promise.resolved) {
 				if(typeof win === 'function') {
-					defer.resolve(win(promise.value));
+					try {
+						defer.resolve(win(promise.value));
+					} catch(error) {
+						console.error(error);
+					}
 				} else {
 					defer.resolve(promise.value);
 				}
 			} else if(promise.failed) {
 				if(typeof fail === 'function') {
-					fail(promise.value);
+					try {
+						fail(promise.value);
+					} catch(error) {
+						console.error(error);
+					}
 				// fail not handled = put error into console
 				} else if(window && console && typeof console.error === 'function') {
 					console.error(promise.value);
@@ -41,7 +49,30 @@
 			}
 			return defer.promise;
 		};
-		promise.done = function() {};
+		promise.done = function() {
+			return promise.then.apply(promise, arguments);
+		};
+		promise.finally = function(callback) {
+			var defer = createDeferred();
+			if(typeof callback !== 'function') {
+				console.error('callback has to by typeof function');
+				return this;
+			}
+			if(promise.settled) {
+				try {
+					callback(promise.value);
+				} catch(error) {
+					console.error(error);
+				}
+			} else {
+				awaiting.push({
+					defer : defer,
+					method : 'finally',
+					args : arguments
+				});
+			}
+			return defer.promise;
+		};
 		promise.map = function(callback) {
 			var defer = createDeferred();
 
@@ -76,6 +107,10 @@
 
 			return defer.promise;
 		};
+		promise.catch = function() {
+			// console.error('catch');
+			return promise;
+		};
 		promise.valueOf = function() {return promise.value;};
 		promise.value = null;
 		promise.resolved = false;
@@ -83,6 +118,9 @@
 		promise.settled = false;
 
 		this.promise = promise;
+		this.resolved = false;
+		this.failed = false;
+		this.settled = false;
 		this.resolve = function(resolveValue) {
 			if(promise.settled) {
 				return promise;
@@ -94,7 +132,9 @@
 				});
 			} else {
 				promise.resolved = true;
+				self.resolved = true;
 				promise.settled = true;
+				self.settled = true;
 				promise.value = resolveValue;
 
 				while(awaiting.length) {
@@ -104,8 +144,12 @@
 						var method = data.method;
 						var win = data.args[0];
 
-						if(method === 'then') {
-							defer.resolve(win(promise.value));
+						if(method === 'then' || method === 'finally') {
+							try {
+								defer.resolve(win(promise.value));
+							} catch(error) {
+								console.error(error);
+							}
 						} else if(method === 'map') {
 							defer.resolve(createDeferred.map(promise.value, win));
 						} else if(method === 'reduce') {
@@ -124,17 +168,31 @@
 			}
 
 			promise.value = rejectValue;
+			self.failed = true;
 			promise.failed = true;
+			self.settled = true;
 			promise.settled = true;
 
 			while(awaiting.length) {
 				(function() {
 					var data = awaiting.shift();
 					var defer = data.defer;
+					var method = data.method;
+					var win = data.args[0];
 					var fail = data.args[1];
 
-					if(typeof fail === 'function') {
-						fail(promise.value);
+					if(method === 'finally') {
+						try {
+							defer.resolve(win(promise.value));
+						} catch(error) {
+							console.error(error);
+						}
+					} else if(typeof fail === 'function') {
+						try {
+							fail(promise.value);
+						} catch(error) {
+							console.error(error);
+						}
 					}
 					defer.reject(promise.value);
 				})();
@@ -145,7 +203,11 @@
 	}
 
 	function createDeferred(value) {
-		return new Deferred(value);
+		if(arguments.length > 1) {
+			return createDeferred.map(Array.prototype.slice.call(arguments));
+		} else {
+			return new Deferred(value);
+		}
 	}
 
 	createDeferred.map = function(collection, callback) {
@@ -160,11 +222,11 @@
 			});
 			return mapDefer.promise;
 		}
-		if(!Array.isArray(collection)) {
-			mapDefer.reject(new Error("First map argument should be an array"));
+		if(collection.length === 0) {
+			mapDefer.resolve([]);
 			return mapDefer.promise;
 		}
-		collection.forEach(function(collectionValue, index) {
+		Array.prototype.forEach.call(collection, function(collectionValue, index) {
 			var defer = createDeferred();
 
 			defer.promise.then(function(value) {
@@ -176,10 +238,23 @@
 				}
 			});
 			result.push(defer.promise);
-			defer.resolve(callback(collectionValue));
+
+			if(isPromise(collectionValue)) {
+				defer.resolve(collectionValue);
+			} else {
+				try {
+					defer.resolve(callback(collectionValue, index));
+				} catch(error) {
+					console.error(error);
+				}
+			}
 		});
 
 		return mapDefer.promise;
+	};
+
+	createDeferred.catch = function() {
+		// console.error('catch');
 	};
 
 	createDeferred.reduce = function(collection, callback) {
@@ -198,6 +273,10 @@
 			reduceDefer.reject(new Error("First map argument should be an array"));
 			return reduceDefer.promise;
 		}
+		if(collection.length === 0) {
+			reduceDefer.resolve();
+			return reduceDefer.promise;
+		}
 		collection.reduce(function(previous, current, index, collection) {
 			var defer = createDeferred();
 
@@ -205,19 +284,35 @@
 			if(isPromise(current) && isPromise(previous)) {
 				previous.then(function(valuePrev) {
 					current.then(function(valueCurrent) {
-						defer.resolve(callback(valuePrev, valueCurrent, index, collection));
+						try {
+							defer.resolve(callback(valuePrev, valueCurrent, index, collection));
+						} catch(error) {
+							console.error(error);
+						}
 					});
 				});
 			} else if(isPromise(current)) {
 				current.then(function(valueCurrent) {
-					defer.resolve(callback(previous, valueCurrent, index, collection));
+					try {
+						defer.resolve(callback(previous, valueCurrent, index, collection));
+					} catch(error) {
+						console.error(error);
+					}
 				});
 			} else if(isPromise(previous)) {
 				previous.then(function(valuePrev) {
-					defer.resolve(callback(valuePrev, current, index, collection));
+					try {
+						defer.resolve(callback(valuePrev, current, index, collection));
+					} catch(error) {
+						console.error(error);
+					}
 				});
 			} else {
-				defer.resolve(callback(previous, current, index, collection));
+				try {
+					defer.resolve(callback(previous, current, index, collection));
+				} catch(error) {
+					console.error(error);
+				}
 			}
 			lastPromise = defer.promise;
 
@@ -233,7 +328,9 @@
 
 	//if sbd's using requirejs library to load deferred.js
 	if(typeof define === 'function') {
-		define(createDeferred);
+		define(function() {
+			return createDeferred;
+		});
 	}
 
 	//node.js

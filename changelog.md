@@ -1,4 +1,9 @@
 ## Changelog
+* v0.5.0
+	* Improved compatibility with medikoo's deferred
+		* finally method
+		* done method
+	* Fixed some issues
 * v0.4.3
 	* Documentation automatic icons improve
 * v0.4.2

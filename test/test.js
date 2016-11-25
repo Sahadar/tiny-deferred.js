@@ -385,6 +385,23 @@ asyncTest("Processing collections - reduce - on normal values", function () {
 	});
 });
 
+QUnit.module('Finally');
+
+test("Test finally method", function () {
+	var defer = deferred();
+	var values = [2,3,8];
+	var current = null;
+
+	defer.resolve('test');
+	defer.promise.then(function() {
+		current = values[0];
+	}).finally(function() {
+		current = values[1];
+	});
+
+	equal(current, values[1], 'Current has to be filled by finally not by then callback');
+});
+
 QUnit.module('Reject');
 
 test("Reject", function () {
