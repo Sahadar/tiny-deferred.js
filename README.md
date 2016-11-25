@@ -20,6 +20,9 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 * Written with TDD
 * Compiled + gzipped weighs less than 1kB
 
+Why to use tiny-deferred?
+* You dont have to remember about .catch'ing errors - **this library is not catching JS errors!**
+
 ## Installation
 * download from Github
 * npm: `npm install tiny-deferred.js`
