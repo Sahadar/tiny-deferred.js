@@ -21,7 +21,7 @@ Implementation originally inspired by Mariusz Nowak's [deferred](https://github.
 * Compiled + gzipped weighs less than 1kB
 
 Why to use tiny-deferred?
-* You dont have to remember about .catch'ing errors - **this library is not catching JS errors!**
+* You dont have to remember about .catch'ing errors - **this library is automatically showing catched JS errors! No more hidden JS errors**
 
 ## Installation
 * download from Github
