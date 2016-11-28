@@ -31,15 +31,13 @@
 			} else if(promise.failed) {
 				if(typeof fail === 'function') {
 					try {
-						fail(promise.value);
+						defer.reject(fail(promise.value));
 					} catch(error) {
 						console.error(error);
 					}
-				// fail not handled = put error into console
-				} else if(window && console && typeof console.error === 'function') {
-					console.error(promise.value);
+				} else {
+					defer.reject(promise.value);
 				}
-				defer.reject(promise.value);
 			} else {
 				awaiting.push({
 					defer : defer,
