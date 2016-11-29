@@ -28,6 +28,25 @@ Why to use tiny-deferred?
 * npm: `npm install tiny-deferred.js`
 * bower: `bower install tiny-deferred`
 
+## Methods
+
+**tiny-deferred.js** is chainable, it means that every method is returning new promise instance.
+
+### defer.resolve(value/promise)
+Value can be a callback, promise or data
+Resolving awaiting deferreds and executing win callbacks
+
+### defer.resolve(value/promise)
+Value can be a callback, promise or data
+Resolving awaiting deferreds and executing fail callbacks
+
+### promise.then(win, fail)
+After defer.resolve() - executing win callback
+After defer.reject() - executing fail callback
+
+### promise.always(callback)
+After defer.resolve() and defer.reject() - executing callback
+
 ## Examples
 
 ### Basic example
