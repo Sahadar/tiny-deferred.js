@@ -30,7 +30,7 @@ Why to use tiny-deferred?
 
 ## Methods
 
-**tiny-deferred.js** is chainable, it means that every method is returning new promise instance.
+**tiny-deferred.js's** promise is chainable. Each promise method is returning new promise instance.
 
 ### defer.resolve(value/promise)
 Value can be a callback, promise or data
