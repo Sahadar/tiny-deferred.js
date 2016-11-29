@@ -501,11 +501,12 @@ asyncTest("Async test 'always' method - after reject", function () {
 	var values = [2,3,8];
 	var current = null;
 
-	defer.promise.then(function() {
+	defer.promise.then(function(givenValue) {
 		current = values[0];
 		notEqual(true, true, "Shoultn't go through win path")
-	}, function() {
+	}, function(givenValue) {
 		equal(true, true, "Should go through fail path");
+		equal('test', givenValue, "Properly given value");
 	}).always(function() {
 		current = values[1];
 	});
