@@ -34,14 +34,17 @@ Why to use tiny-deferred?
 
 ### defer.resolve(value/promise)
 Value can be a callback, promise or data
+
 Resolving awaiting deferreds and executing win callbacks
 
 ### defer.resolve(value/promise)
 Value can be a callback, promise or data
+
 Resolving awaiting deferreds and executing fail callbacks
 
 ### promise.then(win, fail)
 After defer.resolve() - executing win callback
+
 After defer.reject() - executing fail callback
 
 ### promise.always(callback)
