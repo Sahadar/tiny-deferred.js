@@ -1,4 +1,7 @@
 ## Changelog
+* v0.6.0
+	* finally -> always
+	* Fixed issues with always/reject method
 * v0.5.0
 	* Improved compatibility with medikoo's deferred
 		* finally method
