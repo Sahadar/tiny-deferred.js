@@ -48,6 +48,53 @@ test("Nesting", function () {
 	deepEqual(promise.value, [x, 'foo'], "Transfered value");
 });
 
+test("Nesting with reject", function () {
+	var defer = deferred();
+	var innerDefer = deferred();
+	var values = [2,3,8];
+	var current = null;
+
+	defer.promise.then(function() {
+		current = values[0];
+
+		return innerDefer.promise;
+	}).then(function() {
+		current = values[1];
+	}).always(function() {
+		current = values[2];
+	});
+
+	defer.resolve(values);
+	innerDefer.reject('test');
+	equal(current, values[2], 'Current has to be filled by always not by then callback');
+});
+
+test("Nesting - value delivering", function () {
+	var defer = deferred();
+	var innerDefer = deferred();
+	var values = [2,3,8];
+	var current = null;
+
+	defer.promise.then(function(givenValue) {
+		current = givenValue[0];
+
+		return innerDefer.promise;
+	}).then(function(givenValue) {
+		current = givenValue[1];
+		notEqual(true, true, 'Shouldnt go through win path');
+		return givenValue;
+	}, function(givenValue) {
+		equal(true, true, 'Should go through fail path');
+		return givenValue;
+	}).always(function(givenValue) {
+		current = givenValue[2];
+	});
+
+	defer.resolve(values);
+	innerDefer.reject(values);
+	equal(current, values[2], 'Current has to be filled by always not by then callback');
+});
+
 test("Resolve corner case", function () {
 	var defer1 = deferred(),
 		defer2 = deferred(),
@@ -83,9 +130,11 @@ asyncTest("Chaining", function() {
 
 		setTimeout(function() {
 			def.resolve(arg2);
-		}, 100);
+		});
 
 		return def.promise;
+	}, function() {
+		notEqual(true, true, "Shouldn't go through fail path");
 	}).then(function(value) {
 		var def = deferred();
 		equal(value, arg2, "Arg2 passed");
@@ -102,7 +151,7 @@ asyncTest("Chaining", function() {
 
 		setTimeout(function() {
 			def.resolve(arg1+value);
-		}, 100);
+		});
 
 		return def.promise;
 	}).then(function(test) {
@@ -134,6 +183,8 @@ asyncTest("Async chaining", function() {
 	}).then(function(value) {
 		equal(value, arg2, "Arg2 passed");
 		return value;
+	}, function() {
+		notEqual(true, true, "Shouldn't go through fail path");
 	}).then(function(value) {
 		equal(value, arg2, "Arg2 saved");
 	});
@@ -182,6 +233,8 @@ asyncTest("Async resolve promise with other promise", function () {
 
 	promise1(function (result) {
 		equal(result, x);
+	}, function() {
+		notEqual(true, true, "Shouldn't go through fail path");
 	});
 
 	defer1.resolve(promise2);
@@ -201,7 +254,7 @@ asyncTest("Processing collections - map", function () {
 
 		setTimeout(function() {
 			defer.resolve(word.toLowerCase());
-		}, 10);
+		});
 
 		return defer.promise;
 	}).then(function(result) {
@@ -219,16 +272,18 @@ asyncTest("Processing collections - using map with promise as value", function (
 
 	setTimeout(function() {
 		defer.resolve(text.split(' '));
-	}, 100);
+	});
 
 	deferred.map(defer.promise, function(word) {
 		var defer = deferred();
 
 		setTimeout(function() {
 			defer.resolve(word.toLowerCase());
-		}, 10);
+		});
 
 		return defer.promise;
+	}, function() {
+		notEqual(true, true, "Shouldn't go through fail path");
 	}).then(function(result) {
 		var textLowerCase = result.join(' ');
 
@@ -250,7 +305,7 @@ asyncTest("Processing collections - using map on value of resolved promise", fun
 		equal(fullText, text, 'Text properly passed');
 		setTimeout(function() {
 			innerDefer.resolve(fullText.split(' '));
-		}, 100);
+		});
 
 		return innerDefer.promise;
 	}).map(function(word) {
@@ -258,7 +313,7 @@ asyncTest("Processing collections - using map on value of resolved promise", fun
 
 		setTimeout(function() {
 			defer.resolve(word.toLowerCase());
-		}, 10);
+		});
 
 		return defer.promise;
 	}).then(function(result) {
@@ -267,6 +322,8 @@ asyncTest("Processing collections - using map on value of resolved promise", fun
 		start();
 		equal(Array.isArray(result), true, "Result is an array");
 		equal(textLowerCase, text.toLowerCase(), 'Words in proper order, no one is missing');
+	}, function() {
+		notEqual(true, true, "Shouldn't go through fail path");
 	});
 
 	defer.resolve(text);
@@ -287,12 +344,14 @@ asyncTest("Processing collections - reduce", function () {
 
 		setTimeout(function() {
 			defer.resolve(previous+current);
-		}, 10);
+		});
 
 		return defer.promise;
 	}).then(function(result) {
 		start();
 		equal(result, values[0]+values[1]+values[2], "Proper result");
+	}, function() {
+		notEqual(true, true, "Shouldn't go through fail path");
 	});
 
 	defer1.resolve(values[0]);
@@ -314,7 +373,7 @@ asyncTest("Processing collections - reduce as a method of promise", function () 
 
 		setTimeout(function() {
 			defer.resolve(previous+current);
-		}, 10);
+		});
 
 		return defer.promise;
 	}).then(function(result) {
@@ -344,12 +403,14 @@ asyncTest("Processing collections - reduce - not only promises", function () {
 
 		setTimeout(function() {
 			defer.resolve(prev+curr);
-		}, 10);
+		});
 
 		return defer.promise;
 	}).then(function(result) {
 		start();
 		equal(result, values[0]+values[1]+values[2]+1+2, "Proper result");
+	}, function() {
+		notEqual(true, true, "Shouldn't go through fail path");
 	});
 
 	setTimeout(function() {
@@ -376,7 +437,7 @@ asyncTest("Processing collections - reduce - on normal values", function () {
 
 		setTimeout(function() {
 			defer.resolve(prev+curr);
-		}, 10);
+		});
 
 		return defer.promise;
 	}).then(function(result) {
@@ -387,7 +448,7 @@ asyncTest("Processing collections - reduce - on normal values", function () {
 
 QUnit.module('Finally');
 
-test("Test always method - after resolve", function () {
+test("Test 'always' method - after resolve", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
@@ -402,7 +463,7 @@ test("Test always method - after resolve", function () {
 	equal(current, values[1], 'Current has to be filled by always not by then callback');
 });
 
-asyncTest("Async test always method - after resolve", function () {
+asyncTest("Async test 'always' method - after resolve", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
@@ -420,7 +481,7 @@ asyncTest("Async test always method - after resolve", function () {
 	});
 });
 
-test("Test always method - after reject", function () {
+test("Test 'always' method - after reject", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
@@ -435,13 +496,16 @@ test("Test always method - after reject", function () {
 	equal(current, values[1], 'Current has to be filled by always not by then callback');
 });
 
-asyncTest("Async test always method - after reject", function () {
+asyncTest("Async test 'always' method - after reject", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
 
 	defer.promise.then(function() {
 		current = values[0];
+		notEqual(true, true, "Shoultn't go through win path")
+	}, function() {
+		equal(true, true, "Should go through fail path");
 	}).always(function() {
 		current = values[1];
 	});
@@ -451,6 +515,25 @@ asyncTest("Async test always method - after reject", function () {
 		start();
 		equal(current, values[1], 'Current has to be filled by always not by then callback');
 	});
+});
+
+test("'Always' method - after reject another scenario", function () {
+	var defer = deferred();
+	var innerDefer = deferred();
+	var values = [2,3,8];
+	var current = null;
+
+	defer.promise.then(function() {
+		current = values[0];
+
+		return innerDefer.promise;
+	}).always(function() {
+		current = values[1];
+	});
+
+	defer.resolve('test');
+	innerDefer.reject('test');
+	equal(current, values[1], 'Current has to be filled by always not by then callback');
 });
 
 QUnit.module('Reject');

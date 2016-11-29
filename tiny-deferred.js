@@ -125,8 +125,12 @@
 			}
 
 			if(isPromise(resolveValue)) {
-				resolveValue.then(function(val) {
-					self.resolve(val);
+				resolveValue.always(function(val) {
+					if(resolveValue.resolved) {
+						self.resolve(val);
+					} else {
+						self.reject(val);
+					}
 				});
 			} else {
 				promise.resolved = true;
@@ -179,20 +183,27 @@
 					var win = data.args[0];
 					var fail = data.args[1];
 
-					if(method === 'always') {
+					if(method === 'then') {
 						try {
-							defer.resolve(win(promise.value));
+							if(typeof fail === 'function') {
+								defer.reject(fail(promise.value));
+							} else {
+								defer.reject(promise.value);
+							}
 						} catch(error) {
 							console.error(error);
 						}
-					} else if(typeof fail === 'function') {
+					} else if(method === 'always') {
 						try {
-							fail(promise.value);
+							defer.reject(win(promise.value));
 						} catch(error) {
 							console.error(error);
 						}
+					} else if(method === 'map') {
+						defer.reject(createDeferred.map(promise.value, fail));
+					} else if(method === 'reduce') {
+						defer.reject(createDeferred.reduce(promise.value, fail));
 					}
-					defer.reject(promise.value);
 				})();
 			}
 
@@ -212,7 +223,7 @@
 		var mapDefer = createDeferred();
 		var collectionLength = collection.length;
 		var result = [];
-		var resolved = 0;
+		var resolved = 0; 
 
 		if(isPromise(collection)) {
 			collection.then(function(properCollection) {
