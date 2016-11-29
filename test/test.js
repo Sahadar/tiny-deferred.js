@@ -387,7 +387,7 @@ asyncTest("Processing collections - reduce - on normal values", function () {
 
 QUnit.module('Finally');
 
-test("Test finally method - after resolve", function () {
+test("Test always method - after resolve", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
@@ -395,32 +395,32 @@ test("Test finally method - after resolve", function () {
 	defer.resolve('test');
 	defer.promise.then(function() {
 		current = values[0];
-	}).finally(function() {
+	}).always(function() {
 		current = values[1];
 	});
 
-	equal(current, values[1], 'Current has to be filled by finally not by then callback');
+	equal(current, values[1], 'Current has to be filled by always not by then callback');
 });
 
-asyncTest("Async test finally method - after resolve", function () {
+asyncTest("Async test always method - after resolve", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
 
 	defer.promise.then(function() {
 		current = values[0];
-	}).finally(function() {
+	}).always(function() {
 		current = values[1];
 	});
 
 	setTimeout(function() {
 		defer.resolve('test');
 		start();
-		equal(current, values[1], 'Current has to be filled by finally not by then callback');
+		equal(current, values[1], 'Current has to be filled by always not by then callback');
 	});
 });
 
-test("Test finally method - after reject", function () {
+test("Test always method - after reject", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
@@ -428,28 +428,28 @@ test("Test finally method - after reject", function () {
 	defer.reject('test');
 	defer.promise.then(function() {
 		current = values[0];
-	}).finally(function() {
+	}).always(function() {
 		current = values[1];
 	});
 
-	equal(current, values[1], 'Current has to be filled by finally not by then callback');
+	equal(current, values[1], 'Current has to be filled by always not by then callback');
 });
 
-asyncTest("Async test finally method - after reject", function () {
+asyncTest("Async test always method - after reject", function () {
 	var defer = deferred();
 	var values = [2,3,8];
 	var current = null;
 
 	defer.promise.then(function() {
 		current = values[0];
-	}).finally(function() {
+	}).always(function() {
 		current = values[1];
 	});
 
 	setTimeout(function() {
 		defer.reject('test');
 		start();
-		equal(current, values[1], 'Current has to be filled by finally not by then callback');
+		equal(current, values[1], 'Current has to be filled by always not by then callback');
 	});
 });
 

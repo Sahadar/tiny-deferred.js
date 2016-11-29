@@ -50,7 +50,7 @@
 		promise.done = function() {
 			return promise.then.apply(promise, arguments);
 		};
-		promise.finally = function(callback) {
+		promise.always = function(callback) {
 			var defer = createDeferred();
 			if(typeof callback !== 'function') {
 				console.error('callback has to by typeof function');
@@ -65,7 +65,7 @@
 			} else {
 				awaiting.push({
 					defer : defer,
-					method : 'finally',
+					method : 'always',
 					args : arguments
 				});
 			}
@@ -142,7 +142,7 @@
 						var method = data.method;
 						var win = data.args[0];
 
-						if(method === 'then' || method === 'finally') {
+						if(method === 'then' || method === 'always') {
 							try {
 								defer.resolve(win(promise.value));
 							} catch(error) {
@@ -179,7 +179,7 @@
 					var win = data.args[0];
 					var fail = data.args[1];
 
-					if(method === 'finally') {
+					if(method === 'always') {
 						try {
 							defer.resolve(win(promise.value));
 						} catch(error) {
