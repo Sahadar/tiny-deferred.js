@@ -109,7 +109,9 @@
 			// console.error('catch');
 			return promise;
 		};
-		promise.valueOf = function() {return promise.value;};
+		promise.valueOf = function() {
+			return promise.value;
+		};
 		promise.value = null;
 		promise.resolved = false;
 		promise.failed = false;
@@ -223,7 +225,7 @@
 		var mapDefer = createDeferred();
 		var collectionLength = collection.length;
 		var result = [];
-		var resolved = 0; 
+		var resolved = 0;
 
 		if(isPromise(collection)) {
 			collection.then(function(properCollection) {
@@ -268,7 +270,6 @@
 
 	createDeferred.reduce = function(collection, callback) {
 		var reduceDefer = createDeferred();
-		var collectionLength = collection.length;
 		var lastPromise;
 
 		// promise as first argument
@@ -286,7 +287,7 @@
 			reduceDefer.resolve();
 			return reduceDefer.promise;
 		}
-		collection.reduce(function(previous, current, index, collection) {
+		collection.reduce(function(previous, current, index, wholeCollection) {
 			var defer = createDeferred();
 
 			// callback(previous, value, index, collection)
@@ -294,7 +295,7 @@
 				previous.then(function(valuePrev) {
 					current.then(function(valueCurrent) {
 						try {
-							defer.resolve(callback(valuePrev, valueCurrent, index, collection));
+							defer.resolve(callback(valuePrev, valueCurrent, index, wholeCollection));
 						} catch(error) {
 							console.error(error);
 						}
@@ -303,7 +304,7 @@
 			} else if(isPromise(current)) {
 				current.then(function(valueCurrent) {
 					try {
-						defer.resolve(callback(previous, valueCurrent, index, collection));
+						defer.resolve(callback(previous, valueCurrent, index, wholeCollection));
 					} catch(error) {
 						console.error(error);
 					}
@@ -311,14 +312,14 @@
 			} else if(isPromise(previous)) {
 				previous.then(function(valuePrev) {
 					try {
-						defer.resolve(callback(valuePrev, current, index, collection));
+						defer.resolve(callback(valuePrev, current, index, wholeCollection));
 					} catch(error) {
 						console.error(error);
 					}
 				});
 			} else {
 				try {
-					defer.resolve(callback(previous, current, index, collection));
+					defer.resolve(callback(previous, current, index, wholeCollection));
 				} catch(error) {
 					console.error(error);
 				}
